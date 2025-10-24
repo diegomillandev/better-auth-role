@@ -8,7 +8,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { UserAvatar } from "@/components/user-avatar";
+import { User } from "@/lib/auth";
 import { getServerSession } from "@/lib/get-session";
+
 import { format } from "date-fns";
 import { CalendarDaysIcon, MailIcon, ShieldIcon, UserIcon } from "lucide-react";
 import type { Metadata } from "next";
@@ -34,24 +36,19 @@ export default async function DashboardPage() {
             Welcome back! Here&apos;s your account overview.
           </p>
         </div>
-        {/* TODO: Use actual user data */}
-        <EmailVerificationAlert />
-        <ProfileInformation />
+        {!user.emailVerified && <EmailVerificationAlert />}
+
+        <ProfileInformation user={user} />
       </div>
     </main>
   );
 }
 
-function ProfileInformation() {
-  // TODO: Render real user info
-  const user = {
-    name: "John Doe",
-    email: "john.doe@example.com",
-    image: undefined,
-    role: "admin",
-    createdAt: new Date(),
-  };
+interface ProfileInformationProps {
+  user: User;
+}
 
+function ProfileInformation({ user }: ProfileInformationProps) {
   return (
     <Card>
       <CardHeader>
