@@ -19,12 +19,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-client";
 import { passwordSchema } from "@/lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const signUpSchema = z
@@ -59,7 +61,21 @@ export function SignUpForm() {
   });
 
   async function onSubmit({ email, password, name }: SignUpValues) {
-    // TODO: Handle sign up
+    setError(null);
+
+    const { error } = await authClient.signUp.email({
+      email,
+      password,
+      name,
+      callbackURL: "/email-verified",
+    });
+
+    if (error) {
+      setError(error?.message || "An unexpected error occurred");
+    } else {
+      toast.success("Signed up successfully!");
+      router.push("/dashboard");
+    }
   }
 
   const loading = form.formState.isSubmitting;
