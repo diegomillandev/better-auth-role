@@ -2,7 +2,10 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "@/lib/prisma";
 import { nextCookies } from "better-auth/next-js";
-import { getVerifyEmailHtml } from "@/components/shared/email-template";
+import {
+  getResetPasswordEmailHtml,
+  getVerifyEmailHtml,
+} from "@/components/shared/email-template";
 import { FROM_EMAIL, resend } from "./resend";
 
 export const auth = betterAuth({
@@ -12,6 +15,31 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     // requireEmailVerification: true,
+    sendResetPassword: async ({ user, url }) => {
+      try {
+        const emailHtml = getResetPasswordEmailHtml(user.email, url);
+
+        const { data, error } = await resend.emails.send({
+          from: FROM_EMAIL,
+          to: "diegomillandev@gmail.com",
+          subject: "Verify your email address",
+          html: emailHtml,
+        });
+
+        if (error) {
+          console.error("Resend error:", error);
+          throw new Error("Failed to send reset password email");
+        } else {
+          console.log(
+            "Reset password email sent successfully to: ",
+            user.email,
+          );
+          console.log("Resend response data:", data?.id);
+        }
+      } catch (error) {
+        console.error("Error sending reset password email:", error);
+      }
+    },
   },
   emailVerification: {
     sendOnSignUp: true,
