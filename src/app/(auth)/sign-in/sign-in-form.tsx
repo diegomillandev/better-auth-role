@@ -30,7 +30,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
+import { set, z } from "zod";
 
 const signInSchema = z.object({
   email: z.email({ message: "Please enter a valid email" }),
@@ -76,7 +76,19 @@ export function SignInForm() {
   }
 
   async function handleSocialSignIn(provider: "google" | "github") {
-    // TODO: Handle social sign in
+    setError(null);
+    setLoading(true);
+
+    const { error } = await authClient.signIn.social({
+      provider,
+      callbackURL: "/dashboard",
+    });
+
+    setLoading(false);
+
+    if (error) {
+      setError(error?.message || "An unexpected error occurred");
+    }
   }
 
   return (
